@@ -1,0 +1,17 @@
+{
+  "name": "lastbread",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Main.js",
+  "scripts": {
+    "start": "nodemon Main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "firebase": "^6.2.0",
+    "json-dotenv": "0.0.1",
+    "request": "^2.88.0"
+  }
+}

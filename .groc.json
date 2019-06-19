@@ -1,0 +1,11 @@
+{
+    "glob": [
+      "./*.js", 
+      "nugu_event/*.js",
+      "firebase/*.js"
+    ],
+    "except": [
+    ],
+    "github": false,
+    "out": "./docs/groc"
+  }
