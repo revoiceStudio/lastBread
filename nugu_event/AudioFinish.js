@@ -1,8 +1,8 @@
-
+const logger = require('../log')
 //매칭이 끝나면, 해당 방의 플레이어 수를 체크하여 부족한 플레이어 수만큼 AI 생성.
 exports.matching_finished = async function(req, res){
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
 
     const roomKey = globalData["roomKey"]
 
@@ -38,12 +38,12 @@ exports.matching_finished = async function(req, res){
     directives.audioItem.stream["token"] = token
     responseObj.directives[0] = directives
 
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 }
 exports.intro_finished = async function(req, res){
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
 
     const url = JSON.parse(process.env.URL).ready_bet
     const token = JSON.parse(process.env.TOKEN).ready_bet
@@ -57,12 +57,12 @@ exports.intro_finished = async function(req, res){
     directives.audioItem.stream["token"] = token
     responseObj.directives[0] = directives
     
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 }
 exports.betting_start = async function(req, res){
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
     const parameters = jsonObj.action.parameters
     const url = JSON.parse(process.env.URL).bet
     const token = JSON.parse(process.env.TOKEN).bet
@@ -81,8 +81,25 @@ exports.betting_start = async function(req, res){
     if(bet==9){bet=90000}
     if(bet==10){bet=100000}
     const money = await firebaseUser.nowMoney(res["userInfo"].id)
-    // 배팅가격 DB에 추가, 남은 돈 계산    
-    firebaseUser.addBet(res["userInfo"].id, bet)
+
+    //잘못된 요청인 경우
+    // 1. 한번도 플레이하지 않은 경우
+    if(!money && money!=0) {
+        logger.log("잘못된 요청, 한번도 플레이하지 않고 배팅요청한 경우\n")
+        responseObj["resultCode"] = JSON.parse(process.env.EXCEPTION).bet
+        responseObj["directives"] = []
+        return res.json(responseObj)
+    }
+    // 2. AI 만들어지기 전에 방을 나간경우
+    // 배팅가격 DB에 추가, 남은 돈 계산
+    const cal = await firebaseUser.addBet(res["userInfo"].id, bet)
+    console.log("cal 요놈 ::: "+cal)
+    if(!cal) {
+        logger.log("잘못된 요청, 매칭 중간에 AI 생기기 전에 나가고 배팅 요청한 경우\n")
+        responseObj["resultCode"] = JSON.parse(process.env.EXCEPTION).bet
+        responseObj["directives"] = []
+        return res.json(responseObj)
+    }
 
     // 배팅 offset 맞춘다.
     const offset = await firebaseUser.setBettingOffset()
@@ -94,12 +111,12 @@ exports.betting_start = async function(req, res){
     directives.audioItem.stream["offsetInMilliseconds"] = offset
     responseObj.directives[0] = directives
 
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 }
 exports.bet_finished = async function(req, res){
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
     
     // 남은 bread 개수에 맞추어 음악을 전송한다.
     let url = ""
@@ -107,7 +124,7 @@ exports.bet_finished = async function(req, res){
     await firebaseUser.liveButNotBeted()
     // 빵 개수 가져온다. ( 동시에 우승자는 빵 개수 추가)
     const result = await firebaseUser.addBread(res["userInfo"].id)
-    console.log("남은 빵 : ",result.bread)
+    logger.log("남은 빵 : "+result.bread)
     // 빵이 없을때
     if(result.bread==-1){
         url = JSON.parse(process.env.URL).passnight_nobread
@@ -129,12 +146,12 @@ exports.bet_finished = async function(req, res){
     directives.audioItem.stream["token"] = token
     responseObj.directives[0] = directives
 
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)  
 }
 exports.passNight_finished = async function(req, res){
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
 
     let url = ""
     let token = ""
@@ -168,13 +185,13 @@ exports.passNight_finished = async function(req, res){
     directives.audioItem.stream["token"] = token
     responseObj.directives[0] = directives
     
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 }
 // day를 1 증가시키고 이전 day 정보를 그대로 복사한다.
 exports.nextBet_finished = async function(req, res){
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
     const result = await firebaseUser.createNextDayRoom(res["userInfo"].id)
 
     const url = JSON.parse(process.env.URL).ready_bet
@@ -187,13 +204,13 @@ exports.nextBet_finished = async function(req, res){
     directives.audioItem.stream["token"] = token
     responseObj.directives[0] = directives
     
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 
 }
 exports.ad_finished = function(req, res){
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
     firebaseUser.plusTicket(res["userInfo"].id, ++register["ticket"])
     const responseObj = JSON.parse(process.env.RESPONSE)
     return res.json(responseObj)

@@ -1,6 +1,7 @@
+const logger = require('../log')
 exports.ticket_start = async function(req, res) {
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
 
     const ticketNum = await firebaseUser.ticketNum(res["userInfo"].id)
 
@@ -8,12 +9,12 @@ exports.ticket_start = async function(req, res) {
     responseObj.output["ticket"] = ticketNum
     responseObj.directives[0] = []
     
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 }
 exports.review_start = async function(req, res) {
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
     const responseObj = JSON.parse(process.env.RESPONSE)
 
     const reviewMent = await firebaseUser.review(res["userInfo"].id)
@@ -25,12 +26,12 @@ exports.review_start = async function(req, res) {
     }
     responseObj.directives[0] = []
     
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 }
 exports.rating_start = async function(req, res) {
     const jsonObj = req.body
-    console.log(jsonObj.action["actionName"]," 요청 수행 중...")
+    logger.log(jsonObj.action["actionName"]+" 요청 수행 중...")
 
     const ratingScore = await firebaseUser.ratingScore(res["userInfo"].id)
 
@@ -38,6 +39,6 @@ exports.rating_start = async function(req, res) {
     responseObj.output["rating_score"] = ratingScore
     responseObj.directives[0] = []
     
-    console.log("응답\n")
+    logger.log("응답\n")
     return res.json(responseObj)
 }

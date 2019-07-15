@@ -1,8 +1,8 @@
 
 exports.betting_delayElapsed = function(req, res){
     const jsonObj = req.body
-    console.log("요청이 왔습니다. : \n",jsonObj)
-    console.log("audioplayer 정보 : \n",jsonObj["context"].supportedInterfaces.AudioPlayer)
+    console.log("요청이 왔습니다. : \n"+jsonObj)
+    console.log("audioplayer 정보 : \n"+jsonObj["context"].supportedInterfaces.AudioPlayer)
     const parameters = jsonObj.action.parameters
     const url = JSON.parse(process.env.URL).bet
     const token = JSON.parse(process.env.TOKEN).bet

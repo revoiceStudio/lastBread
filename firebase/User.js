@@ -1,13 +1,13 @@
-
+const logger = require('../log')
 module.exports = class Firebase{
 
   //첫번쨰놈 요청이오면 얘가 기준
   setFirstTime(key){
     let nowTime = new Date().getTime()
     //getNow함수로 offset시간으로 바꿔준다.
-    console.log("이번 요청이 첫번쨰놈이라 시간을 서버에 때려박습니다.", nowTime)
+    logger.log("이번 요청이 첫번쨰놈이라 시간을 서버에 때려박습니다."+ nowTime)
     fb.child('game/'+ key +"/firstTime").set(nowTime , ()=> {
-      console.log("오프셋은 이 시간에 종료되어야합니다.", nowTime)
+      logger.log("오프셋은 이 시간에 종료되어야합니다."+ nowTime)
     })
   }
 
@@ -19,8 +19,8 @@ module.exports = class Firebase{
       fb.child('game/'+key+"/firstTime").once('value', function(data){
         const serverfirstTime = data.val();
         const playerOffset = nowTime - serverfirstTime
-        console.log("두번째놈 들어온 시간 : ", nowTime)
-        console.log("두번째놈부터 오프셋 : ", playerOffset)
+        logger.log("두번째놈 들어온 시간 : "+ nowTime)
+        logger.log("두번째놈부터 오프셋 : "+ playerOffset)
         resolve(playerOffset)
       })
     })      
@@ -36,14 +36,14 @@ module.exports = class Firebase{
         // 첫 번째 배팅한 놈이면
         if(serverfirstTime==0){
           fb.child('game/'+register.room+"/firstTime").set(nowTime)
-          console.log("배팅오프셋 첫 번째 배팅한 놈 시간 : ",nowTime)
+          logger.log("배팅오프셋 첫 번째 배팅한 놈 시간 : "+nowTime)
           resolve(8000)
         }
         else{
             //+ 8000은 늘려줄 오프셋 음악이 너무 길어서 조절용 추가! 20000넘으면 안댐
             //실행해보면서 조절하기
             const playerOffset = 8000 + nowTime - serverfirstTime
-            console.log("배팅오프셋 두 번째 놈부터 오프셋 : ",playerOffset)
+            logger.log("배팅오프셋 두 번째 놈부터 오프셋 : "+playerOffset)
             resolve(playerOffset)
         }
       })      
@@ -58,8 +58,8 @@ module.exports = class Firebase{
           ticket: 3,
           score : 1000
       },function(error) {
-          if (error) {console.log("DB : 유저등록 중 에러 발생")} 
-          else {console.log("DB : 유저 등록")}
+          if (error) {logger.log("DB : 유저등록 중 에러 발생")} 
+          else {logger.log("DB : 유저 등록")}
       })
     })
   }
@@ -67,7 +67,7 @@ module.exports = class Firebase{
   checkUser(id){
     return new Promise(async function(resolve) {
       fb.child('userInfo').child(id).once('value', function(data){
-        console.log('DB : 유저 확인')
+        logger.log('DB : 유저 확인')
         resolve(data.val())
       })
     })
@@ -81,7 +81,7 @@ module.exports = class Firebase{
   // 티켓 +1
   plusTicket(id, ticket){
     fb.child('userInfo/'+ id+"/ticket").set(ticket)
-    console.log(id,"유저의 티켓이 추가되었습니다.")
+    logger.log(id+"유저의 티켓이 추가되었습니다.")
   }
   // 티켓 갯수 알려줌
   ticketNum(id){
@@ -122,7 +122,7 @@ module.exports = class Firebase{
             })  
           }
         }
-        console.log("점수 계산 완료")        
+        logger.log("점수 계산 완료")        
       })
     })
   }
@@ -190,7 +190,7 @@ module.exports = class Firebase{
                 ment = ment + "잘 배팅하셨네요."
               }            
             }
-            console.log(ment)
+            logger.log(ment)
             resolve(ment)
           })
         }
@@ -203,10 +203,10 @@ module.exports = class Firebase{
       let roomInfo = {}
       fb.child('game/'+register.room).once('value', function(data){
         roomInfo = data.val()
-        console.log('데이 : ',roomInfo["day"])
+        logger.log('데이 : '+roomInfo["day"])
       }).then(()=>{
         fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/" + id+"/state").once('value',function(data){
-          console.log("플레이어 상태 : ",data.val())
+          logger.log("플레이어 상태 : "+data.val())
           let diePlayer =""
           let dieMent = ""
           let livePlayerCount = 0
@@ -257,14 +257,14 @@ module.exports = class Firebase{
       let roomInfo = {}
       fb.child('game/'+register.room).once('value', function(data){
         roomInfo = data.val()
-        console.log('데이 : ',roomInfo["day"])
+        logger.log('데이 : '+roomInfo["day"])
       }).then(()=>{
         let count = 0
         const keyOfId = Object.keys(roomInfo["day"+roomInfo["day"]])
         for(let i=0; i<keyOfId.length; i++){
           if(roomInfo["day"+roomInfo["day"]][keyOfId[i]].state=="live"){++count}
         }
-        console.log("현재 생존 플레이어 수 : ",count)
+        logger.log("현재 생존 플레이어 수 : "+count)
         resolve(count)
       })
     })
@@ -275,10 +275,10 @@ module.exports = class Firebase{
       let roomInfo = {}
       fb.child('game/'+register.room).once('value', function(data){
         roomInfo = data.val()
-        console.log('데이 : ',roomInfo["day"])
+        logger.log('데이 : '+roomInfo["day"])
       }).then(()=>{
         fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/" + id+"/bread").once('value', function(data){
-          console.log('빵 - ',data.val(),'개')
+          logger.log('빵 - '+data.val(),'개')
           resolve(data.val())
         })
       })
@@ -290,7 +290,7 @@ module.exports = class Firebase{
     let roomInfo = {}
     await fb.child('game/'+register.room).once('value', function(data){
       roomInfo = data.val()
-      console.log('데이 : ',roomInfo["day"])
+      logger.log('데이 : '+roomInfo["day"])
     }).then(async ()=>{
       const dayInfo = roomInfo["day"+roomInfo["day"]]
       const keyOfId = Object.keys(dayInfo)
@@ -316,7 +316,7 @@ module.exports = class Firebase{
       let roomInfo = {}
       fb.child('game/'+register.room).once('value', function(data){
         roomInfo = data.val()
-        console.log('데이 : ',roomInfo["day"])
+        logger.log('데이 : '+roomInfo["day"])
       }).then(()=>{
         let bread = roomInfo["day"+roomInfo["day"]][id].bread
         if(roomInfo["day"+roomInfo["day"]]["winner"].uid!=""){
@@ -342,7 +342,7 @@ module.exports = class Firebase{
         else{
           result.ment = roomInfo["day"+roomInfo["day"]]["winner"].maxCount + "명이 같은 금액을 배팅해, 아무도 빵을 얻지 못했습니다."
         }
-        console.log("빵추가완료")
+        logger.log("빵추가완료")
         resolve(result)
       })
     })
@@ -352,18 +352,18 @@ module.exports = class Firebase{
     return new Promise(async function(resolve) {
       fb.child('game/'+key+"/firstTime").set(0)
       fb.child('game/'+key+"/day1").once('value', function(data){
-        console.log("룸 체크",data.val())
+        logger.log("룸 체크 "+data.val())
         const count = Object.keys(data.val()).length;
         resolve(count)
       })
     })  
   }
   // 매칭된 플레이어 수 저장
-  setMatchingPlayerNum(key, num){
+  /*setMatchingPlayerNum(key, num){
     fb.child('game/'+ key +"/playerCount").set(num, ()=> {
-      console.log("DB : 매칭된 플레이어 수 저장:", num)
+      logger.log("DB : 매칭된 플레이어 수: "+ num)
     })
-  }
+  }*/
   // 몇 번재 플레이어인지 가져온다.
   playerNum(id, key){
     return new Promise(async function(resolve) {
@@ -371,9 +371,27 @@ module.exports = class Firebase{
       await fb.child('game/'+key).once('value', function(data){
         roomInfo = data.val()
       }).then(()=>{
-        fb.child('game/'+ key+"/day"+roomInfo["day"]+"/" + id+"/player").once('value', function(data){
+        const keyOfId = Object.keys(roomInfo["day1"])
+        let userPlayerCount = 0
+        for(let i=0; i<keyOfId.length-1; i++){
+          if( keyOfId[i]==id ){
+            roomInfo["day1"][id].player = i+1
+          }
+          if(keyOfId[i]!="A" && keyOfId[i]!="B" && keyOfId[i]!="C"){
+            userPlayerCount++
+          }
+        }
+        
+        if(roomInfo["day1"][id].player==1){
+          fb.child('game/'+ key +"/playerCount").set(userPlayerCount, ()=> {
+            logger.log("DB : 매칭된 플레이어 수: "+ userPlayerCount)
+          })
+        }
+        fb.child('game/'+key+"/day1/"+ id+"/player").set(roomInfo["day1"][id].player)
+        resolve(roomInfo["day1"][id].player)
+        /*fb.child('game/'+ key+"/day"+roomInfo["day"]+"/" + id+"/player").once('value', function(data){
           resolve(data.val())
-        })
+        })*/
       })
     })
   }
@@ -391,17 +409,18 @@ module.exports = class Firebase{
     fb.child('game/'+key+"/day").set(
       1
     ,function(error) {
-        if (error) {console.log("DB : 게임방 개설 중 에러")} 
+        if (error) {logger.log("DB : 게임방 개설 중 에러")} 
         else {
-          console.log("DB : 게임방 개설")
+          logger.log("DB : 게임방 개설")
         }
     }).then( async ()=>{
       await fb.child('game/'+key).child("day1").once('value',(data)=>{ 
         if(data.val()==null){
-          updateData["player"] = 1
+          updateData["player"] = 0
         }else{
           const playerNum = Object.keys(data.val()).length;
-          updateData["player"] = (playerNum-1) + 1
+          //updateData["player"] = (playerNum-1) + 1
+          updateData["player"] = 0
         }
       })
     }).then(()=>{
@@ -475,16 +494,16 @@ module.exports = class Firebase{
       betState  : "no"
     } 
     if(id=="A"){
-      updateData["player"] = 2
+      updateData["player"] = "2"
     }
     else if(id=="B"){
-      updateData["player"] = 3
+      updateData["player"] = "3"
     }
     else if(id=="C"){
-      updateData["player"] = 4
+      updateData["player"] = "4"
     }
     fb.child('game/'+key+"/day1/" + id).set(updateData, ()=> {
-      console.log("AI 추가:", id)
+      logger.log("AI 추가:"+ id)
     })
       
   }
@@ -493,101 +512,117 @@ module.exports = class Firebase{
       let roomInfo = {}
       fb.child('game/'+register.room).once('value', function(data){
         roomInfo = data.val()
-        console.log('데이 : ',roomInfo["day"])
+        if(!roomInfo){return resolve(roomInfo)}
+        logger.log('데이 : '+roomInfo["day"])
       }).then(()=>{
-        fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/" + id+"/money").once('value',function(data){
-          resolve(data.val())
-        })
+        if(roomInfo){
+          fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/" + id+"/money").once('value',function(data){
+            resolve(data.val())
+          })
+        }
       })
     })
   }
   // 배팅가격, 현재 남은돈 계산
   addBet(id, bet){
-    fb.child('game/'+register.room+"/dayCount").set(-1)
-    fb.child('game/'+register.room+"/addBreadCount").set(0)
-    let roomInfo = {}
-    fb.child('game/'+register.room).once('value', function(data){
-      roomInfo = data.val()
-      console.log('데이 : ',roomInfo["day"])
-    }).then(async()=>{
+    return new Promise(async function(resolve) {
+      fb.child('game/'+register.room+"/dayCount").set(-1)
+      fb.child('game/'+register.room+"/addBreadCount").set(0)
+      let roomInfo = {}
+      let keyOfId = {}
+      fb.child('game/'+register.room).once('value', function(data){
+        roomInfo = data.val()      
+        keyOfId = Object.keys(roomInfo["day1"])      
+        logger.log('데이 : '+roomInfo["day"])
+        if(keyOfId.length<5){
+          return resolve(null)
+        }else{
+          console.log("트루!!!!!!!!!!!!")
+          return resolve(true)
+        }
+      }).then(async()=>{
+        if(keyOfId.length<5){
+          return resolve(null)
+        }
+        console.log("트루222222222!!!!!!!!!!!!")
+        const money = roomInfo["day"+roomInfo["day"]][id].money
 
-      const money = roomInfo["day"+roomInfo["day"]][id].money
+        //bet 머니 계산. bet 금액이 현재 money보다 클 경우 올인 처리.
+        if(bet>money){bet = money}
+        roomInfo["day"+roomInfo["day"]][id].money = money - bet 
+        roomInfo["day"+roomInfo["day"]][id].bet = bet
+        roomInfo["day"+roomInfo["day"]][id].bread = --roomInfo["day"+roomInfo["day"]][id].bread
 
-      //bet 머니 계산. bet 금액이 현재 money보다 클 경우 올인 처리.
-      if(bet>money){bet = money}
-      roomInfo["day"+roomInfo["day"]][id].money = money - bet 
-      roomInfo["day"+roomInfo["day"]][id].bet = bet
-      roomInfo["day"+roomInfo["day"]][id].bread = --roomInfo["day"+roomInfo["day"]][id].bread
+        //배팅 처리
+        roomInfo["day"+roomInfo["day"]][id].betState = "yes"
 
-      //배팅 처리
-      roomInfo["day"+roomInfo["day"]][id].betState = "yes"
+        roomInfo = await playerState(roomInfo, id)
+        roomInfo = await winner(roomInfo, id, bet) 
+        fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/winner").set(roomInfo["day"+roomInfo["day"]].winner)
+        fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/" + id).set(
+          roomInfo["day"+roomInfo["day"]][id]
+          , function(){
+            logger.log('DB : '+bet+'원 배팅 완료')
+            
+            //플레이어가 4명보다 작으면 a,b,c도 랜덤으로 배팅한다.
+            const count = roomInfo["playerCount"];
+            if(count==1){
+              if(checkAILive(roomInfo,"A") && roomInfo["day"+roomInfo["day"]]["A"].betState == "no"){
+                AIBet(roomInfo,"A")
+                playerState(roomInfo, "A")
+                winner(roomInfo, "A", roomInfo["day"+roomInfo["day"]]["A"].bet) 
+                roomInfo["day"+roomInfo["day"]]["A"].betState = "yes"
+              }
+              if(checkAILive(roomInfo,"B") && roomInfo["day"+roomInfo["day"]]["B"].betState == "no"){
+                AIBet(roomInfo,"B")
+                playerState(roomInfo, "B")
+                winner(roomInfo, "B", roomInfo["day"+roomInfo["day"]]["B"].bet) 
+                roomInfo["day"+roomInfo["day"]]["B"].betState = "yes"
+              }
+              if(checkAILive(roomInfo,"C") && roomInfo["day"+roomInfo["day"]]["C"].betState == "no"){
+                AIBet(roomInfo,"C")   
+                playerState(roomInfo, "C")
+                winner(roomInfo, "C", roomInfo["day"+roomInfo["day"]]["C"].bet) 
+                roomInfo["day"+roomInfo["day"]]["C"].betState = "yes"
+              }
+              fb.child('game/'+register.room+"/day"+roomInfo["day"]).set(
+                roomInfo["day"+roomInfo["day"]]
+              )
 
-      roomInfo = await playerState(roomInfo, id)
-      roomInfo = await winner(roomInfo, id, bet) 
-      fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/winner").set(roomInfo["day"+roomInfo["day"]].winner)
-      fb.child('game/'+register.room+"/day"+roomInfo["day"]+"/" + id).set(
-        roomInfo["day"+roomInfo["day"]][id]
-        , function(){
-          console.log('DB : ',bet,'원 배팅 완료')
-          
-          //플레이어가 4명보다 작으면 a,b,c도 랜덤으로 배팅한다.
-          const count = roomInfo["playerCount"];
-          if(count==1){
-            if(checkAILive(roomInfo,"A") && roomInfo["day"+roomInfo["day"]]["A"].betState == "no"){
-              AIBet(roomInfo,"A")
-              playerState(roomInfo, "A")
-              winner(roomInfo, "A", roomInfo["day"+roomInfo["day"]]["A"].bet) 
-              roomInfo["day"+roomInfo["day"]]["A"].betState = "yes"
             }
-            if(checkAILive(roomInfo,"B") && roomInfo["day"+roomInfo["day"]]["B"].betState == "no"){
-              AIBet(roomInfo,"B")
-              playerState(roomInfo, "B")
-              winner(roomInfo, "B", roomInfo["day"+roomInfo["day"]]["B"].bet) 
-              roomInfo["day"+roomInfo["day"]]["B"].betState = "yes"
+            else if(count==2){
+              if(checkAILive(roomInfo,"B") && roomInfo["day"+roomInfo["day"]]["B"].betState == "no"){
+                AIBet(roomInfo,"B")
+                playerState(roomInfo, "B")
+                winner(roomInfo, "B", roomInfo["day"+roomInfo["day"]]["B"].bet) 
+                roomInfo["day"+roomInfo["day"]]["B"].betState = "yes"
+              }
+              if(checkAILive(roomInfo,"C") && roomInfo["day"+roomInfo["day"]]["C"].betState == "no"){
+                AIBet(roomInfo,"C")   
+                playerState(roomInfo, "C")
+                winner(roomInfo, "C", roomInfo["day"+roomInfo["day"]]["C"].bet) 
+                roomInfo["day"+roomInfo["day"]]["C"].betState = "yes"
+              }
+              fb.child('game/'+register.room+"/day"+roomInfo["day"]).set(
+                roomInfo["day"+roomInfo["day"]]
+              )
             }
-            if(checkAILive(roomInfo,"C") && roomInfo["day"+roomInfo["day"]]["C"].betState == "no"){
-              AIBet(roomInfo,"C")   
-              playerState(roomInfo, "C")
-              winner(roomInfo, "C", roomInfo["day"+roomInfo["day"]]["C"].bet) 
-              roomInfo["day"+roomInfo["day"]]["C"].betState = "yes"
+            else if(count==3){
+              if(checkAILive(roomInfo,"C") && roomInfo["day"+roomInfo["day"]]["C"].betState == "no"){
+                AIBet(roomInfo,"C")   
+                playerState(roomInfo, "C")
+                winner(roomInfo, "C", roomInfo["day"+roomInfo["day"]]["C"].bet) 
+                roomInfo["day"+roomInfo["day"]]["C"].betState = "yes"
+              }
+              fb.child('game/'+register.room+"/day"+roomInfo["day"]).set(
+                roomInfo["day"+roomInfo["day"]]
+              )
             }
-            fb.child('game/'+register.room+"/day"+roomInfo["day"]).set(
-              roomInfo["day"+roomInfo["day"]]
-            )
-
-          }
-          else if(count==2){
-            if(checkAILive(roomInfo,"B") && roomInfo["day"+roomInfo["day"]]["B"].betState == "no"){
-              AIBet(roomInfo,"B")
-              playerState(roomInfo, "B")
-              winner(roomInfo, "B", roomInfo["day"+roomInfo["day"]]["B"].bet) 
-              roomInfo["day"+roomInfo["day"]]["B"].betState = "yes"
-            }
-            if(checkAILive(roomInfo,"C") && roomInfo["day"+roomInfo["day"]]["C"].betState == "no"){
-              AIBet(roomInfo,"C")   
-              playerState(roomInfo, "C")
-              winner(roomInfo, "C", roomInfo["day"+roomInfo["day"]]["C"].bet) 
-              roomInfo["day"+roomInfo["day"]]["C"].betState = "yes"
-            }
-            fb.child('game/'+register.room+"/day"+roomInfo["day"]).set(
-              roomInfo["day"+roomInfo["day"]]
-            )
-          }
-          else if(count==3){
-            if(checkAILive(roomInfo,"C") && roomInfo["day"+roomInfo["day"]]["C"].betState == "no"){
-              AIBet(roomInfo,"C")   
-              playerState(roomInfo, "C")
-              winner(roomInfo, "C", roomInfo["day"+roomInfo["day"]]["C"].bet) 
-              roomInfo["day"+roomInfo["day"]]["C"].betState = "yes"
-            }
-            fb.child('game/'+register.room+"/day"+roomInfo["day"]).set(
-              roomInfo["day"+roomInfo["day"]]
-            )
-          }
+        })
       })
     })
   }
-
+  
 
 
 }
@@ -606,7 +641,7 @@ function winner(roomInfo, id, bet){
       roomInfo["day"+roomInfo["day"]].winner.maxCount = 1
       roomInfo["day"+roomInfo["day"]].winner.uid = id
     }
-    console.log("winner결정")
+    logger.log("winner결정")
     resolve(roomInfo)
   })
  
@@ -619,7 +654,7 @@ function playerState(roomInfo, id){
       roomInfo["day"+roomInfo["day"]][id].state = "die"
       roomInfo["day"+roomInfo["day"]][id].dieDay = roomInfo["day"]
     }
-    console.log("플레이어 live OR die 결정")
+    logger.log("플레이어 live OR die 결정")
     resolve(roomInfo)
   })
 }

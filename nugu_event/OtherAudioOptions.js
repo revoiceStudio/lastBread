@@ -1,8 +1,8 @@
-
+const logger = require('../log')
 exports.stop = function(req, res){
 
     const jsonObj = req.body
-    console.log('광고 시작 request가 왔습니다 : \n',jsonObj)
+    logger.log('광고 시작 request가 왔습니다 : \n'+jsonObj)
     const responseObj = {}
     const audioItemObj = {}
     const streamObj = {}
@@ -19,8 +19,8 @@ exports.stop = function(req, res){
     audioItemObj["metadata"] = {}
     responseObj["type"] = "AudioPlayer.Play"
     responseObj["audioItem"] = audioItemObj
-    console.log(responseObj)
-    console.log('광고 시작 response를 보냅니다. : \n',responseObj)
+    logger.log(responseObj)
+    logger.log('광고 시작 response를 보냅니다. : \n',responseObj)
     return res.json(responseObj)
 }
 
@@ -28,7 +28,7 @@ exports.pause = function(req, res){
 
     const jsonObj = req.body
     const responseObj = {}
-    console.log(jsonObj)
+    logger.log(jsonObj)
     return res.json(responseObj)
 
 }
@@ -36,7 +36,7 @@ exports.resumed = function(req, res){
 
     const jsonObj = req.body
     const responseObj = {}
-    console.log(jsonObj)
+    logger.log(jsonObj)
     return res.json(responseObj)
 
 }
@@ -44,7 +44,7 @@ exports.failed = function(req, res){
 
     const jsonObj = req.body
     const responseObj = {}
-    console.log(jsonObj)
+    logger.log(jsonObj)
     return res.json(responseObj)
 
 }
