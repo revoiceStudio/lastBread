@@ -155,13 +155,13 @@ module.exports = class Firebase{
               let myBet = 0
               //이 날의 평균 배팅 금액
               for(let j=0; j<keyOfId.length-1; j++){
-                averageBet += dayInfo[keyOfId[j]].bet
+                averageBet += parseInt(dayInfo[keyOfId[j]].bet)
                 //이 날의 나의 배팅 금액
                 if(keyOfId[i]==id){
-                  myBet = dayInfo[keyOfId[j]].bet
+                  myBet = parseInt(dayInfo[keyOfId[j]].bet)
                 }
                 if(j==keyOfId.length-2){
-                  averageBet = averageBet/(keyOfId.length-1)
+                  averageBet = parseInt(averageBet/(keyOfId.length-1))
                 }
               }
               let dayMent = i+1
@@ -177,17 +177,17 @@ module.exports = class Firebase{
               if(dayMent==10){dayMent="열"}   
               //이 날에 내가 이겼을 때
               if(dayInfo.winner["uid"]==id){
-                ment = ment + (dayMent+"째날에 당신은 승리했습니다. 이 날의 평균 배팅금액은"+averageBet+"원 이고,"+
-                "당신은 "+ myBet +"원을 배팅 했습니다.")
+                ment = ment + (dayMent+"째날, 당신은 배팅에 성공했습니다. 이 날의 평균 배팅금액은, "+averageBet+"원이었고,"+
+                "당신은 "+ myBet +"원을 배팅했습니다.")
               }else{
-                ment = ment + (dayMent+"째날에 당신은 패배했습니다. 이 날의 평균 배팅금액은"+averageBet+"원 이고,"+
-                "당신은 "+ myBet +"원을 배팅 했습니다.")
+                ment = ment + (dayMent+"째날, 배팅에 실패했습니다. 이 날의 평균 배팅금액은, "+averageBet+"원이었고,"+
+                "당신은 "+ myBet +"원을 배팅했습니다.")
               }
               if(averageBet >= myBet){
-                ment = ment + "다음엔 좀 더 높은 금액을 불러보세요."
+                ment = ment + " 다음엔 좀 더 높은 금액을 불러보세요."
               }
               else{
-                ment = ment + "잘 배팅하셨네요."
+                ment = ment + " 잘 배팅하셨네요."
               }            
             }
             logger.log(ment)

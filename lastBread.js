@@ -33,7 +33,6 @@ if(cluster.isMaster){
         let worker = cluster.fork()
         
         worker.on("message", (message)=>{
-            logger.log("마스터 메시지 받음 : ."+message)
             for (const id in cluster.workers) {
                 let worker = cluster.workers[id];
                 worker.send(
@@ -93,7 +92,7 @@ else{
                 })
             }
         }
-        else{return res.json({'test':'OK'})}
+        else{return res.json({'status':'OK'})}
     })
     //5. 누구에게 응답
     app.use('/lastbread', router)
